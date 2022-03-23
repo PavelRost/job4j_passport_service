@@ -35,8 +35,8 @@ public class PassportController {
         return passportService.findAll();
     }
 
-    @GetMapping("/findBySerial")
-    public List<Passport> findBySerial(@RequestParam int serial) {
+    @GetMapping("/findBySerial/{serial}")
+    public List<Passport> findBySerial(@PathVariable int serial) {
         return passportService.findBySerial(serial);
     }
 
