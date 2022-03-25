@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "passport")
+@Table(name = "passport", uniqueConstraints = @UniqueConstraint(name = "UniqueSerialAndNumber", columnNames = {"serial", "number"}))
 public class Passport {
 
     @Id
@@ -25,6 +25,10 @@ public class Passport {
         this.serial = serial;
         this.number = number;
         this.validityPeriod = validityPeriod;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {

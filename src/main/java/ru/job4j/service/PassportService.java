@@ -1,9 +1,12 @@
 package ru.job4j.service;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.job4j.domain.Passport;
 import ru.job4j.repository.PassportRepository;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,26 +20,36 @@ public class PassportService {
         this.passportRepository = passportRepository;
     }
 
-    public Passport save(Passport passport) {
-        return passportRepository.save(passport);
+    public ResponseEntity<Passport> save(Passport passport) {
+        List<Passport> passports = findAll();
+        for (var pass : passports) {
+            if (pass.getSerial() == passport.getSerial() || pass.getNumber() == passport.getNumber()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+        }
+        passportRepository.save(passport);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    public void update(int id, Passport passport) {
-        passportRepository.updatePassport(passport.getName(),
-                passport.getSerial(),
-                passport.getNumber(),
-                passport.getValidityPeriod(),
-                id);
+    public ResponseEntity<Void> update(int id, Passport passport) {
+        boolean status = passportRepository.existsById(id);
+        if (status) {
+            passport.setId(id);
+            passportRepository.save(passport);
+        }
+        return ResponseEntity.status(status ? HttpStatus.OK : HttpStatus.NOT_FOUND).build();
     }
 
-    public void delete(int id) {
-        passportRepository.deleteById(id);
+    public ResponseEntity<Void> delete(int id) {
+        boolean status = passportRepository.existsById(id);
+        if (status) {
+            passportRepository.deleteById(id);
+        }
+        return ResponseEntity.status(status ? HttpStatus.OK : HttpStatus.NOT_FOUND).build();
     }
 
     public List<Passport> findAll() {
-        List<Passport> rsl = new ArrayList<>();
-        passportRepository.findAll().forEach(rsl::add);
-        return rsl;
+        return passportRepository.findAll();
     }
 
     public List<Passport> findBySerial(int serial) {
@@ -44,25 +57,13 @@ public class PassportService {
     }
 
     public List<Passport> findNoValid() {
-        List<Passport> temp = findAll();
-        List<Passport> rsl = new ArrayList<>();
-        for (var passport : temp) {
-            if (passport.getValidityPeriod().getMonth() < new Date().getMonth()) {
-                rsl.add(passport);
-            }
-        }
-        return rsl;
+        return passportRepository.findPassportNoValid();
     }
 
     public List<Passport> findReplaceable() {
-        List<Passport> temp = findAll();
-        List<Passport> rsl = new ArrayList<>();
-        for (var passport : temp) {
-            if ((passport.getValidityPeriod().getMonth() - new Date().getMonth()) < 3 && (passport.getValidityPeriod().getMonth() - new Date().getMonth()) > 0) {
-                rsl.add(passport);
-            }
-        }
-        return rsl;
+        Timestamp stamp = new Timestamp(System.currentTimeMillis());
+        stamp.setMonth(stamp.getMonth() + 3);
+        return passportRepository.findPassportReplaceable(stamp);
     }
 
 

@@ -1,5 +1,6 @@
 package ru.job4j.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.domain.Passport;
 import ru.job4j.service.PassportService;
@@ -16,18 +17,18 @@ public class PassportController {
     }
 
     @PostMapping("/save")
-    public Passport save(@RequestBody Passport passport) {
+    public ResponseEntity<Passport> save(@RequestBody Passport passport) {
         return passportService.save(passport);
     }
 
     @PutMapping("/update/{id}")
-    public void update(@PathVariable int id, @RequestBody Passport passport) {
-        passportService.update(id, passport);
+    public ResponseEntity<Void> update(@PathVariable int id, @RequestBody Passport passport) {
+        return passportService.update(id, passport);
     }
 
     @DeleteMapping("/delete/{id}")
-    public void delete(@PathVariable int id) {
-        passportService.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable int id) {
+        return passportService.delete(id);
     }
 
     @GetMapping("/findAll")
