@@ -1,5 +1,6 @@
 package ru.job4j.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.domain.Passport;
@@ -18,17 +19,23 @@ public class PassportController {
 
     @PostMapping("/save")
     public ResponseEntity<Passport> save(@RequestBody Passport passport) {
-        return passportService.save(passport);
+        boolean rsl = passportService.save(passport);
+        if (!rsl) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<Void> update(@PathVariable int id, @RequestBody Passport passport) {
-        return passportService.update(id, passport);
+        boolean rsl = passportService.update(id, passport);
+        return ResponseEntity.status(rsl ? HttpStatus.OK : HttpStatus.NOT_FOUND).build();
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> delete(@PathVariable int id) {
-        return passportService.delete(id);
+        boolean rsl = passportService.delete(id);
+        return ResponseEntity.status(rsl ? HttpStatus.OK : HttpStatus.NOT_FOUND).build();
     }
 
     @GetMapping("/findAll")

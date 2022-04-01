@@ -20,32 +20,31 @@ public class PassportService {
         this.passportRepository = passportRepository;
     }
 
-    public ResponseEntity<Passport> save(Passport passport) {
-        List<Passport> passports = findAll();
-        for (var pass : passports) {
-            if (pass.getSerial() == passport.getSerial() || pass.getNumber() == passport.getNumber()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-            }
+    public boolean save(Passport passport) {
+        boolean rsl = false;
+        Passport pass = passportRepository.findBySerialAndNumber(passport.getSerial(), passport.getNumber()).orElse(null);
+        if (pass == null) {
+            passportRepository.save(passport);
+            rsl = true;
         }
-        passportRepository.save(passport);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return rsl;
     }
 
-    public ResponseEntity<Void> update(int id, Passport passport) {
-        boolean status = passportRepository.existsById(id);
-        if (status) {
+    public boolean update(int id, Passport passport) {
+        boolean rsl = passportRepository.existsById(id);
+        if (rsl) {
             passport.setId(id);
             passportRepository.save(passport);
         }
-        return ResponseEntity.status(status ? HttpStatus.OK : HttpStatus.NOT_FOUND).build();
+        return rsl;
     }
 
-    public ResponseEntity<Void> delete(int id) {
-        boolean status = passportRepository.existsById(id);
-        if (status) {
+    public boolean delete(int id) {
+        boolean rsl = passportRepository.existsById(id);
+        if (rsl) {
             passportRepository.deleteById(id);
         }
-        return ResponseEntity.status(status ? HttpStatus.OK : HttpStatus.NOT_FOUND).build();
+        return rsl;
     }
 
     public List<Passport> findAll() {
@@ -53,7 +52,7 @@ public class PassportService {
     }
 
     public List<Passport> findBySerial(int serial) {
-        return new ArrayList<>(passportRepository.findPassportBySerial(serial));
+        return passportRepository.findPassportBySerial(serial);
     }
 
     public List<Passport> findNoValid() {
@@ -65,6 +64,4 @@ public class PassportService {
         stamp.setMonth(stamp.getMonth() + 3);
         return passportRepository.findPassportReplaceable(stamp);
     }
-
-
 }

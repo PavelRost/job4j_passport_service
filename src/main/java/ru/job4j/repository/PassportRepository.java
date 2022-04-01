@@ -17,14 +17,13 @@ public interface PassportRepository extends CrudRepository<Passport, Integer> {
 
     List<Passport> findPassportBySerial(int serial);
 
-    @Override
     List<Passport> findAll();
 
-    @Transactional
     @Query("SELECT ps FROM Passport ps WHERE ps.validityPeriod < CURRENT_TIMESTAMP")
     List<Passport> findPassportNoValid();
 
-    @Transactional
     @Query("SELECT ps FROM Passport ps WHERE ps.validityPeriod > current_timestamp AND ps.validityPeriod < :date")
     List<Passport> findPassportReplaceable(@Param("date") Timestamp date);
+
+    Optional<Passport> findBySerialAndNumber(int serial, int number);
 }

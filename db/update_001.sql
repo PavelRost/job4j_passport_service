@@ -1,8 +1,8 @@
 create table if not exists passport (
     id serial primary key not null,
     name varchar(50),
-    serial int,
-    number int,
+    serial int unique,
+    number int unique,
     validity_Period TIMESTAMP
 );
 
